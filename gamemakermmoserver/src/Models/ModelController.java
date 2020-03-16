@@ -60,7 +60,7 @@ public class ModelController {
                 }
                 
                 //if the user didn't already exist on the server and database create it
-                GameCharacter gc = new GameCharacter(username, password, getMap("rm_map_1"));
+                GameCharacter gc = new GameCharacter(username, password, getMap("rmMap1"));
 
                 //and don't forget to save the new user in the database
                 ps = c.prepareStatement("INSERT INTO accounts VALUES(?,?,?,?,?)");

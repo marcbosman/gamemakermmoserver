@@ -27,6 +27,7 @@ public class Server implements Runnable {
     private ServerSocket serverSocket;
     private boolean running = false;
     private Socket client = null;
+    PacketHandler ph = new PacketHandler();
     BlockingQueue<Runnable> queue = new SynchronousQueue<>();
     private ExecutorService fixedThreadPool = new ThreadPoolExecutor(ServerConstants.MAX_PLAYERS, ServerConstants.MAX_PLAYERS, 0L, TimeUnit.MILLISECONDS, queue);
     
@@ -48,7 +49,6 @@ public class Server implements Runnable {
             } catch(RejectedExecutionException e){
                 System.out.println("Client: " + client.getInetAddress() + " tried to connect but server is full");
                 //write the handshake packet to the client telling the server is full and close the connection
-                PacketHandler ph = new PacketHandler();
                 ph.sendHandshake(new DataOutputStream(client.getOutputStream()), false);
                 client.close();
             }

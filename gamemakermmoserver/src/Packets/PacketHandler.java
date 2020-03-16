@@ -44,21 +44,16 @@ public class PacketHandler {
         
         //handling the command from the received packet
         switch(command){
-            case "debug": handleDebug(packetLength, in); break;
             case "login": handleLogin(packetLength, in, out); break;
             case "register": handleRegister(packetLength, in, out); break;
             case "logout": clientLogout(); break;
             case "pos": handlePos(packetLength, in); break;
+            case "sprite": handleSprite(packetLength, in); break;
             case "chat": handleChat(packetLength, in); break;
             case "changemap": handleChangeMap(packetLength, in, out); break;
             case "npc": handleNpcChat(packetLength, in, out); break;
             default: handleUnknown(command, packetLength, in);
         }
-    }
-    
-    public void handleDebug(int packetLength, DataInputStream in) throws IOException{
-        String message = bar.readNullTerminatedString(packetLength, in);
-        System.out.println("Debug message: " + message);
     }
     
     public void handleLogin(int packetLength, DataInputStream in, DataOutputStream out) throws IOException{
@@ -148,6 +143,18 @@ public class PacketHandler {
         broadcastRoom(baw.getPacket());
     }
     
+    public void handleSprite(int packetLength, DataInputStream in) throws IOException{
+        short sprite_direction = bar.readLEShort(in);
+        String new_sprite = bar.readNullTerminatedString(packetLength, in);
+        
+        //send the new sprite to other players in the same map
+        baw.writeNullTerminatedString("SPRITE");
+        baw.writeNullTerminatedString(gameCharacter.getUsername());
+        baw.writeLEShort(sprite_direction);
+        baw.writeNullTerminatedString(new_sprite);
+        broadcastRoom(baw.getPacket());
+    }
+    
     public void handleChat(int packetLength, DataInputStream in) throws IOException{
         String message = bar.readNullTerminatedString(packetLength, in);
         
@@ -217,12 +224,6 @@ public class PacketHandler {
         baw.writeNullTerminatedString("HELLO");
         baw.writeNullTerminatedString(Long.toString(System.currentTimeMillis()));
         baw.writeByte((byte)(result ? 1 : 0 )); //boolean for being accepted online
-        out.write(baw.getPacket());
-    }
-    
-    public void sendDebugMessage(String message, DataOutputStream out) throws IOException{
-        baw.writeNullTerminatedString("DEBUG");
-        baw.writeNullTerminatedString(message);
         out.write(baw.getPacket());
     }
     
